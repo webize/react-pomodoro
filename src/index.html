@@ -59,6 +59,7 @@
                 console.log('Account storage root: %s', parsedProfile.storage) // array of URIs })
                 storage = parsedProfile.storage[0];
                 console.log(storage);
+                notie.alert(1, 'storage found at : ' + storage);
                 var containerName = 'localStorage';
 
                 var url = storage + containerName;
@@ -83,8 +84,11 @@
                         // solidResponse.url - value of the Location header
                         // solidResponse.acl - url of acl resource
                         // solidResponse.meta - url of meta resource
+                        notie.alert(1, 'localStorage container set up : ' + url);
+
                       }
                     ).catch(function(err){
+                      notie.alert(1, err);
                       console.log(err) // error object
                       console.log(err.status) // contains the error status
                       console.log(err.xhr) // contains the xhr object
@@ -119,6 +123,7 @@
           solid.web.put(uri, '<'+origin+'> <urn:string:localStorage> """'+ JSON.stringify(localStorage) +'"""').then(
             function(solidResponse) {
               console.log(solidResponse)
+              notie.alert(1, 'localStorage saved!');
               // The resulting object has several useful properties.
               // See lib/solid-response.js for details
               // solidResponse.url - value of the Location header
@@ -126,6 +131,7 @@
               // solidResponse.meta - url of meta resource
             }
           ).catch(function(err){
+            notie.alert(1, err);
             console.log(err) // error object
             console.log(err.status) // contains the error status
             console.log(err.xhr) // contains the xhr object
@@ -134,6 +140,55 @@
 
           return false;
         };
+
+
+        if(e.keyCode == 79 && (e.ctrlKey || e.metaKey)){
+          if (!storage) return;
+          var containerName = 'localStorage/';
+
+          var origin = location.origin.replace(/.*?:\/\//g, "");
+
+          var uri = storage + containerName + origin;
+
+
+          solid.web.get(uri)
+            .then(function(response) {
+              if (response.isContainer()) {
+                // This is an instance of SolidContainer, see Listing Containers below
+                for (resourceUrl in response.resources) {
+                  // iterate over resources
+                }
+                for (subcontainerUrl in response.containers) {
+                  // iterate over sub-containers
+                }
+              } else {
+                // Regular resource
+                console.log('Raw resource: %s', response.raw())
+                notie.alert(1, 'localStorage loaded!');
+
+                var graph = response.parsedGraph()
+                // Print all statements matching resources of type foaf:Post
+                var st = graph.statements[0].object.value;
+                console.log(st)
+                var ls = JSON.parse(st);
+
+                for (var key in ls) {
+                  if (ls.hasOwnProperty(key)) {
+                    console.log(key + " -> " + ls[key])
+                  }
+                }
+
+              }
+            })
+            .catch(function(err) {
+                notie.alert(1, err);
+                console.log(err) // error object
+              // ...
+             })
+
+          return false;
+        };
+
 
       });
 

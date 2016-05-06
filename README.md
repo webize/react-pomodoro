@@ -2,8 +2,6 @@
 
 # React Pomodoro
 
-[![release](https://img.shields.io/badge/release-v0.1.0-green.svg)](https://github.com/afonsopacifer/react-pomodoro/archive/0.1.0.zip)
-
 > Pomodoro timer for developers.
 
 ## Features
@@ -48,13 +46,6 @@ $ npm start
 
 Go to: [localhost:8080](http://localhost:8080/)
 
-## Contributing
-Find on our [issues](https://github.com/afonsopacifer/react-pomodoro/issues/) the next steps of the project ;)
-<br>
-Want to contribute? [Follow these recommendations](https://github.com/afonsopacifer/react-pomodoro/blob/master/CONTRIBUTING.md).
-
-## History
-See [Releases](https://github.com/afonsopacifer/react-pomodoro/releases) for detailed changelog.
 
 ## License
 [MIT License](https://github.com/afonsopacifer/react-pomodoro/blob/master/LICENSE.md) © [Afonso Pacifer](http://afonsopacifer.com/)

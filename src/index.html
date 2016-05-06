@@ -35,13 +35,80 @@
     <script type="text/JavaScript" src="bundle.js"></script>
     <script src="https://solid.github.io/releases/rdflib.js/rdflib-0.6.0.min.js"></script>
     <script src="https://solid.github.io/releases/solid.js/solid-0.14.1.min.js"></script>
-    <script src="js/notie.js"></script>    
+    <script src="js/notie.js"></script>
     <script>
       // TODO : move to webize.js
       // $rdf is exported as a global when you load RDFLib, above
       var solid = require('solid')
       // Use Solid client here ...
       console.log('solid.js version: ' + solid.meta.version())
+
+      document.addEventListener('keydown', function(e){
+        if(e.keyCode == 76 && (e.ctrlKey || e.metaKey)){
+
+          var storage;
+          authEndpoint = 'https://databox.me/';
+          var dologin = function() {
+            // Get the current user
+            solid.auth.login(authEndpoint).then(function(webid){
+              // authentication succeeded; do something with the WebID string
+              notie.alert(1, 'Success!  You are logged in as : ' + webid);
+
+              solid.identity.getProfile(webid).then(function (parsedProfile) {
+                console.log('getProfile result: %o', parsedProfile)
+                console.log('Account storage root: %s', parsedProfile.storage) // array of URIs })
+                storage = parsedProfile.storage[0];
+                console.log(storage);
+                var containerName = 'localStorage';
+
+                var url = storage + containerName;
+                solid.web.get(url).then(
+                  function(response) {
+                    console.log('Raw resource: %s', response.raw())
+                  }
+                ).catch(
+                  function(err) {
+                    console.log(err) // error object
+                    // ...
+                    var parentDir = 'https://example.org/'
+                    var slug = 'localStorage'
+                    var data = '<#this> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rdfs.org/sioc/ns#Space> .'
+                    var isContainer = true
+
+                    solid.web.post(storage, data, slug, true).then(
+                      function(solidResponse) {
+                        console.log(solidResponse)
+                        // The resulting object has several useful properties.
+                        // See lib/solid-response.js for details
+                        // solidResponse.url - value of the Location header
+                        // solidResponse.acl - url of acl resource
+                        // solidResponse.meta - url of meta resource
+                      }
+                    ).catch(function(err){
+                      console.log(err) // error object
+                      console.log(err.status) // contains the error status
+                      console.log(err.xhr) // contains the xhr object
+                    })
+
+                  }
+                )
+
+
+              });
+
+              window.user = webid;
+            }).catch(function(err) {
+              // authentication failed; display some error message
+              alert(err);
+            });
+          };
+
+
+          dologin();
+          return false;
+        }
+      });
+
     </script>
   </body>
 </html>

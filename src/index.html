@@ -42,11 +42,11 @@
       var solid = require('solid')
       // Use Solid client here ...
       console.log('solid.js version: ' + solid.meta.version())
+      var storage;
 
       document.addEventListener('keydown', function(e){
         if(e.keyCode == 76 && (e.ctrlKey || e.metaKey)){
 
-          var storage;
           authEndpoint = 'https://databox.me/';
           var dologin = function() {
             // Get the current user
@@ -107,6 +107,34 @@
           dologin();
           return false;
         }
+
+        if(e.keyCode == 83 && (e.ctrlKey || e.metaKey)){
+          if (!storage) return;
+          var containerName = 'localStorage/';
+
+          var origin = location.origin.replace(/.*?:\/\//g, "");
+
+          var uri = storage + containerName + origin;
+
+          solid.web.put(uri, '<'+origin+'> <urn:string:localStorage> """'+ JSON.stringify(localStorage) +'"""').then(
+            function(solidResponse) {
+              console.log(solidResponse)
+              // The resulting object has several useful properties.
+              // See lib/solid-response.js for details
+              // solidResponse.url - value of the Location header
+              // solidResponse.acl - url of acl resource
+              // solidResponse.meta - url of meta resource
+            }
+          ).catch(function(err){
+            console.log(err) // error object
+            console.log(err.status) // contains the error status
+            console.log(err.xhr) // contains the xhr object
+          })
+
+
+          return false;
+        };
+
       });
 
     </script>

@@ -4,6 +4,8 @@
 
 > Pomodoro timer for developers.
 
+Webized version to interact with Solid.
+
 ## Features
 
 ![notifications](notifications.png)

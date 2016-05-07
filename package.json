@@ -16,7 +16,7 @@
   },
   "gh-pages-deploy": {
     "staticpath": "src",
-    "noprompt": false
+    "noprompt": true
   },
   "devDependencies": {
     "babel-core": "^6.7.7",

@@ -38,6 +38,7 @@
     <script src="js/notie.js"></script>
     <script>
       var webize = {}
+      webize.containerName = 'localStorage/';
       // $rdf is exported as a global when you load RDFLib, above
       var solid = require('solid')
       // Use Solid client here ...
@@ -59,9 +60,8 @@
                 webize.storage = parsedProfile.storage[0];
                 console.log(webize.storage);
                 notie.alert(1, 'storage found at : ' + webize.storage);
-                var containerName = 'localStorage';
 
-                var url = webize.storage + containerName;
+                var url = webize.storage + webize.containerName;
                 solid.web.get(url).then(
                   function(response) {
                     console.log('Raw resource: %s', response.raw())
@@ -115,11 +115,10 @@
         if(e.keyCode == 83 && (e.ctrlKey || e.metaKey)){
           webize.save = function() {
             if (!webize.storage) return;
-            var containerName = 'localStorage/';
 
             var origin = location.origin.replace(/.*?:\/\//g, "");
 
-            var uri = webize.storage + containerName + origin;
+            var uri = webize.storage + webize.containerName + origin;
 
             var state = JSON.parse(localStorage.getItem('state'))
             var turtle = '';
@@ -154,11 +153,10 @@
         if(e.keyCode == 79 && (e.ctrlKey || e.metaKey)){
           webize.load = function() {
             if (!webize.storage) return;
-            var containerName = 'localStorage/';
 
             var origin = location.origin.replace(/.*?:\/\//g, "");
 
-            var uri = webize.storage + containerName + origin;
+            var uri = webize.storage + webize.containerName + origin;
 
 
             solid.web.get(uri)

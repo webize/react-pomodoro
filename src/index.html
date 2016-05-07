@@ -37,18 +37,17 @@
     <script src="https://solid.github.io/releases/solid.js/solid-0.14.1.min.js"></script>
     <script src="js/notie.js"></script>
     <script>
-      // TODO : move to webize.js
+      var webize = {}
       // $rdf is exported as a global when you load RDFLib, above
       var solid = require('solid')
       // Use Solid client here ...
       console.log('solid.js version: ' + solid.meta.version())
-      var storage;
 
       document.addEventListener('keydown', function(e){
         if(e.keyCode == 76 && (e.ctrlKey || e.metaKey)){
 
           authEndpoint = 'https://databox.me/';
-          var dologin = function() {
+          webize.dologin = function() {
             // Get the current user
             solid.auth.login(authEndpoint).then(function(webid){
               // authentication succeeded; do something with the WebID string
@@ -57,12 +56,12 @@
               solid.identity.getProfile(webid).then(function (parsedProfile) {
                 console.log('getProfile result: %o', parsedProfile)
                 console.log('Account storage root: %s', parsedProfile.storage) // array of URIs })
-                storage = parsedProfile.storage[0];
-                console.log(storage);
-                notie.alert(1, 'storage found at : ' + storage);
+                webize.storage = parsedProfile.storage[0];
+                console.log(webize.storage);
+                notie.alert(1, 'storage found at : ' + webize.storage);
                 var containerName = 'localStorage';
 
-                var url = storage + containerName;
+                var url = webize.storage + containerName;
                 solid.web.get(url).then(
                   function(response) {
                     console.log('Raw resource: %s', response.raw())
@@ -76,7 +75,7 @@
                     var data = '<#this> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rdfs.org/sioc/ns#Space> .'
                     var isContainer = true
 
-                    solid.web.post(storage, data, slug, true).then(
+                    solid.web.post(webize.storage, data, slug, true).then(
                       function(solidResponse) {
                         console.log(solidResponse)
                         // The resulting object has several useful properties.
@@ -100,6 +99,7 @@
 
               });
 
+              webize.user = webid;
               window.user = webid;
             }).catch(function(err) {
               // authentication failed; display some error message
@@ -108,83 +108,90 @@
           };
 
 
-          dologin();
+          webize.dologin();
           return false;
         }
 
         if(e.keyCode == 83 && (e.ctrlKey || e.metaKey)){
-          if (!storage) return;
-          var containerName = 'localStorage/';
+          webize.save = function() {
+            if (!webize.storage) return;
+            var containerName = 'localStorage/';
 
-          var origin = location.origin.replace(/.*?:\/\//g, "");
+            var origin = location.origin.replace(/.*?:\/\//g, "");
 
-          var uri = storage + containerName + origin;
+            var uri = webize.storage + containerName + origin;
 
-          solid.web.put(uri, '<'+origin+'> <urn:string:localStorage> """'+ JSON.stringify(localStorage) +'"""').then(
-            function(solidResponse) {
-              console.log(solidResponse)
-              notie.alert(1, 'localStorage saved!');
-              // The resulting object has several useful properties.
-              // See lib/solid-response.js for details
-              // solidResponse.url - value of the Location header
-              // solidResponse.acl - url of acl resource
-              // solidResponse.meta - url of meta resource
-            }
-          ).catch(function(err){
-            notie.alert(1, err);
-            console.log(err) // error object
-            console.log(err.status) // contains the error status
-            console.log(err.xhr) // contains the xhr object
-          })
+            var state = JSON.parse(localStorage.getItem('state'))
+            var turtle = '';
+            turtle += '<'+origin+'> <urn:localStorage:time> "'+ state.time +'" .'
+            console.log(turtle)
 
+            solid.web.put(uri, turtle).then(
+              function(solidResponse) {
+                console.log(solidResponse)
+                notie.alert(1, 'localStorage saved!');
+                // The resulting object has several useful properties.
+                // See lib/solid-response.js for details
+                // solidResponse.url - value of the Location header
+                // solidResponse.acl - url of acl resource
+                // solidResponse.meta - url of meta resource
+              }
+            ).catch(function(err){
+              notie.alert(1, err);
+              console.log(err) // error object
+              console.log(err.status) // contains the error status
+              console.log(err.xhr) // contains the xhr object
+            })
 
-          return false;
+          }
+
+          webize.save()
+
+          return false
         };
 
 
         if(e.keyCode == 79 && (e.ctrlKey || e.metaKey)){
-          if (!storage) return;
-          var containerName = 'localStorage/';
+          webize.load = function() {
+            if (!webize.storage) return;
+            var containerName = 'localStorage/';
 
-          var origin = location.origin.replace(/.*?:\/\//g, "");
+            var origin = location.origin.replace(/.*?:\/\//g, "");
 
-          var uri = storage + containerName + origin;
+            var uri = webize.storage + containerName + origin;
 
 
-          solid.web.get(uri)
-            .then(function(response) {
-              if (response.isContainer()) {
-                // This is an instance of SolidContainer, see Listing Containers below
-                for (resourceUrl in response.resources) {
-                  // iterate over resources
-                }
-                for (subcontainerUrl in response.containers) {
-                  // iterate over sub-containers
-                }
-              } else {
-                // Regular resource
-                console.log('Raw resource: %s', response.raw())
-                notie.alert(1, 'localStorage loaded!');
-
-                var graph = response.parsedGraph()
-                // Print all statements matching resources of type foaf:Post
-                var st = graph.statements[0].object.value;
-                console.log(st)
-                var ls = JSON.parse(st);
-
-                for (var key in ls) {
-                  if (ls.hasOwnProperty(key)) {
-                    console.log(key + " -> " + ls[key])
+            solid.web.get(uri)
+              .then(function(response) {
+                if (response.isContainer()) {
+                  // This is an instance of SolidContainer, see Listing Containers below
+                  for (resourceUrl in response.resources) {
+                    // iterate over resources
                   }
-                }
+                  for (subcontainerUrl in response.containers) {
+                    // iterate over sub-containers
+                  }
+                } else {
+                  // Regular resource
+                  console.log('Raw resource: %s', response.raw())
+                  notie.alert(1, 'localStorage loaded!');
 
-              }
-            })
-            .catch(function(err) {
-                notie.alert(1, err);
-                console.log(err) // error object
-              // ...
-             })
+                  var graph = response.parsedGraph()
+                  // Print all statements matching resources of type foaf:Post
+                  var st = graph.statements[0].object.value;
+                  console.log(st)
+                  localStorage.setItem('state', JSON.stringify({"time" : st }))
+
+                }
+              })
+              .catch(function(err) {
+                  notie.alert(1, err);
+                  console.log(err) // error object
+                // ...
+               })
+          }
+
+          webize.load()
 
           return false;
         };

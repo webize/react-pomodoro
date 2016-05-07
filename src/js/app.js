@@ -24,9 +24,20 @@ const Pomodoro = React.createClass({
       this.alert();
     }
     if (this.state.play === true) {
+      this.loadFromLocalStorage()
       let newState = this.state.time - 1;
       this.setState({time: newState});
+      this.saveToLocalStorage()
     }
+  },
+
+  saveToLocalStorage() {
+    localStorage.setItem('state', JSON.stringify(this.state))
+  },
+
+  loadFromLocalStorage() {
+    var state = JSON.parse(localStorage.getItem('state'))
+    this.state.time = state.time
   },
 
   format(seconds) {
@@ -60,6 +71,7 @@ const Pomodoro = React.createClass({
   setTime(newTime) {
     this.reset(newTime);
     this.setState({time: newTime, timeType: newTime});
+    this.saveToLocalStorage()
   },
 
   alert() {

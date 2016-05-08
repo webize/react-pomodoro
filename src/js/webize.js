@@ -9,7 +9,7 @@ webize.save = function() {
 
   var state = JSON.parse(localStorage.getItem('state'))
   var turtle = '';
-  turtle += '<'+origin+'> <urn:localStorage:time> "'+ state.time +'" .'
+  turtle += '<'+origin+'> <urn:localStorage:state> """'+ JSON.stringify(state) +'""" .'
   console.log(turtle)
 
   solid.web.put(uri, turtle).then(
@@ -58,7 +58,7 @@ webize.load = function() {
         // Print all statements matching resources of type foaf:Post
         var st = graph.statements[0].object.value;
         console.log(st)
-        localStorage.setItem('state', JSON.stringify({"time" : st }))
+        localStorage.setItem('state', st )
 
       }
     })

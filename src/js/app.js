@@ -7,9 +7,9 @@ const Pomodoro = React.createClass({
 
   getInitialState () {
     return {
-      time: 0,
+      time: 1500,
       play: false,
-      timeType: 0
+      timeType: 1500
     };
   },
 
@@ -32,7 +32,8 @@ const Pomodoro = React.createClass({
   },
 
   saveToLocalStorage() {
-    localStorage.setItem('state', JSON.stringify(this.state))
+    var that = this
+    setTimeout(function() { localStorage.setItem('state', JSON.stringify(that.state)) }, 100)
   },
 
   loadFromLocalStorage() {
@@ -65,7 +66,8 @@ const Pomodoro = React.createClass({
   reset(resetFor) {
     clearInterval(this.interval);
     let time = this.format(resetFor);
-    this.setState({play: false});
+    this.setState({time: resetFor, play: false, timeType: resetFor});
+    this.saveToLocalStorage()
   },
 
   setTime(newTime) {
